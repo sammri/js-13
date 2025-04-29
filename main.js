@@ -1,3 +1,6 @@
+
+
+
 // Напиши сценарій керування особистим кабінетом інтернет-банку.
 // Є об'єкт account в якому необхідно реалізувати методи для роботи з балансом та історією транзакцій.
 
@@ -50,22 +53,16 @@ const Transaction = {
      * після чого додає його в історію транзакцій
      */
     deposit(amount) {
-      if (confirm("Хочешь пополнить свой банк?")) {
-        let userDepositAmount = prompt("На сколько грн хочешь пополнить?")
-        userDepositAmount = parseFloat(userDepositAmount);
+          if (isNaN(amount) || amount <= 0) {
+            alert("Некорректная сумма!");
+            return;
+          }
+          else{
+            this.balance += amount;
+          }
 
-            if (userDepositAmount !== null && userDepositAmount >= 0) {
-              this.balance += userDepositAmount;
-            } else{ 
-              return;
-            }
-
-            const transaction = this.createTransaction(userDepositAmount,"deposit");
-            this.transactions.push(transaction)
-      } 
-      else {
-        return;
-      }
+          const transaction = this.createTransaction(amount, Transaction.DEPOSIT);
+          this.transactions.push(transaction)
     },
 
 
@@ -80,37 +77,46 @@ const Transaction = {
      * про те, що зняття такої суми не можливо, недостатньо коштів.
      */
     withdraw(amount) {
-        if (confirm("Хочешь снять с банка?")) {
-          let userWithdrawAmount = prompt("Сколько хочешь снять?");
-          
-          if (userWithdrawAmount !== null && userWithdrawAmount >= 0) {
-            this.balance = this.balance - userWithdrawAmount;
-          } else{ 
-            return;
-          }
 
-          const transaction = this.createTransaction(userDepositAmount,"deposit");
-          this.transactions.push(transaction);
-
-        } 
-        else {
-          return;
-        }
+      if (isNaN(amount) || amount <= 0) {
+        alert("Введи корректную сумму!");
+        return;
+      }
+    
+      if (amount > this.balance) {
+        alert("Недостаточно средств!");
+        return;
+      }
+    
+      this.balance -= amount;
+    
+      const transaction = this.createTransaction(amount, Transaction.WITHDRAW);
+      this.transactions.push(transaction);
     },
+    
   
     /*
      * Метод повертає поточний баланс
      */
-    getBalance() {},
+    getBalance() {
+      return this.balance;
+    },
+
+
     /*
      * Метод шукає і повертає об'єкт транзакції по id
      */
-    getTransactionDetails(id) {},
+    getTransactionDetails(id) {
+      return this.transactions.find(transaction => transaction.id === id)
+    },
   
     /*
   
      * Метод повертає кількість коштів
      * певного типу транзакції з усієї історії транзакцій
      */
-    getTransactionTotal(type) {},
+    getTransactionTotal(type) {
+      const filterTransctions = this.transactions.filter(transaction => transaction.type === type);
+      return filterTransctions.reduce((sum, transaction) => sum + transaction.amount, 0) ; 
+    },
   };
